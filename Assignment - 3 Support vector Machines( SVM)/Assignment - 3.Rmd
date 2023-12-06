@@ -1,0 +1,91 @@
+---
+title: "Assignment - 3"
+author: "NANDINI NAIR"
+date: "2023-12-06"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ISLR)
+library(dplyr)
+```
+
+```{r}
+library(kernlab)
+library(caret)
+library(glmnet)
+```
+
+
+```{r}
+data <- Carseats %>%
+  select(Sales, Price, Advertising, Population, Age, Income, Education)
+
+head(data)
+
+```
+
+QB1
+
+
+```{r}
+#Building SVM model
+
+set.seed(1800)
+
+Model1<- train(Sales ~ ., 
+               data = data, 
+               method = "svmLinear",
+               preProcess = c("center", "scale"))
+Model1
+```
+## R squared is 35.16
+# The value for co-etticien to determinination for SVMmodel= 35.16
+
+QB2
+
+```{r}
+#Training SVM model using repeat cross- validation &cost parameter of 0.1,0.5,1, 10 using search g
+
+set.seed(1800)
+grid = expand.grid(C= c(0.1,0.5,1,10))
+trctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 2)
+Model2 <- train(Sales ~., data = data, method = "svmLinear",trControl=trctrl,preProcess = c("center", "scale"),tuneGrid = grid,tuneLength = 10)
+Model2
+```
+#R-squared = 35.97
+
+Best R-squared value of 35.60 is obtained and RMSE value is least when we use C= 0.5
+
+QB3
+
+```{r}
+set.seed(1800)
+
+#Scaling data using pre-process and predict function
+
+scale <- preProcess(data[,2:7],method = c("center","scale"))
+scale_data<-predict(scale,data)
+
+#Building a model using neural network
+
+Model3<- train(Sales~.,data=scale_data,method="nnet",linout=TRUE, trace = FALSE)
+Model3
+```
+# R- Squared = 34.71 and size = 1
+
+Q4
+```{r}
+#Predicting Sales for following data when Price = 6.54, Population = 124, Advertising = 0, Age = 76, Income = 11 ,0, Education = 10
+df <- data.frame(Price = 6.54, Population = 124, Advertising = 0, Age = 76, Income = 110, Education = 10)
+Pred_sale<- predict(Model3,df )
+Pred_sale
+```
+
+Predicted value for sales = 4.97
